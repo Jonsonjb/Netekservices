@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "Perfil do Utilizador",
+      "description": "Dados do perfil do estudante ou candidato",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "location": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "CvLetter": {
+      "title": "Documento CV ou Carta",
+      "description": "Dados do CV ou Carta de Candidatura guardados pelo utilizador",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "personalInfo": { "type": "object" },
+        "experience": { "type": "array" },
+        "education": { "type": "array" },
+        "skills": { "type": "array" },
+        "letterContent": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "type", "title"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Perfil individual público/privado"
+    },
+    "/cvs_letters/{docId}": {
+      "schema": "CvLetter",
+      "description": "CVs e Cartas de Candidatura guardados para cada utilizador"
+    }
+  }
+}

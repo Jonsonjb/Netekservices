@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny catch-all rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Users Profiles Collection ---
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow create, update: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == request.auth.uid
+        && incoming().email is string
+        && incoming().displayName is string;
+      allow delete: if false; // Profiles shouldn't be deleted via client SDK
+    }
+
+    // --- Saved CVs & Cover Letters Collection ---
+    match /cvs_letters/{docId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid && isValidId(docId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() && isValidId(docId)
+        && incoming().userId == request.auth.uid
+        && incoming().title is string
+        && incoming().title.size() <= 100
+        && incoming().type is string;
+        
+      allow update: if isSignedIn() && isValidId(docId)
+        && existing().userId == request.auth.uid
+        && incoming().userId == request.auth.uid
+        && incoming().title is string
+        && incoming().title.size() <= 100
+        && incoming().type is string
+        && (incoming().diff(existing()).affectedKeys().hasOnly(['title', 'personalInfo', 'experience', 'education', 'skills', 'letterContent', 'updatedAt']));
+        
+      allow delete: if isSignedIn() && isValidId(docId)
+        && existing().userId == request.auth.uid;
+    }
+  }
+}

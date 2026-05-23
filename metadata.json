@@ -1,0 +1,6 @@
+{
+  "name": "Netek Services",
+  "description": "Plataforma de Serviços Digitais, Cursos Tecnológicos, Dicas Práticas e Tutoriais de IA em Moçambique.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
